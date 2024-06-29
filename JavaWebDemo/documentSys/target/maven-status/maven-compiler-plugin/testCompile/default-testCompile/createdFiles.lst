@@ -1,0 +1,6 @@
+Test\Dao\TestDatabase.class
+Test\Service\DocServiceImplTest.class
+Test\Dao\TDocTypeDaoImplTest.class
+Test\Service\UserServiceImplTest.class
+Test\Dao\TDocDaoImplTest.class
+Test\Dao\TUserDaoImplTest.class

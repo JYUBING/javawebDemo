@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>无标题文档</title>
+</head>
+
+<body>
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+	<tr>
+		<td align="right">
+			登录成功，欢迎您，admin	 <a href="login.html">退出</a>
+		</td>
+	</tr>
+</table>
+
+<h2>新增文档</h2>
+<form id="docForm" action="http://localhost:8080/docsys/api/doc?type=upload" method="post"  enctype="multipart/form-data">
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+
+	<input type="hidden" name="type" value="add" />
+
+	<tr>
+		<td>文档类型:</td>
+		<td>
+			<select name="typeId" id="typeId">
+				<option value="">--请选择--</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>文档名称:</td>
+		<td><input type="text" name="docName" id="docName" /></td>
+	</tr>
+	<tr>
+		<td>文档摘要:</td>
+		<td>
+			<textarea rows="3" cols="21" id="describe" class="ckeditor"  name="describe" ></textarea>
+		</td>
+	</tr>
+	<tr>
+		<td>上传人:</td>
+		<td><input type="text" name="auth" id="auth" /></td>
+	</tr>
+	<tr>
+		<td>上传时间(yyyy-MM-dd):</td>
+		<td><input type="date" name="pushDate" id="pushDate" /></td>
+	</tr>
+	<tr>
+		<td>上传文件:</td>
+		<td><input type="file" name="picPath" id="picPath" /></td>
+	</tr>
+	<tr>
+		<td>上传文件:</td>
+		<td><input type="file" name="picPaths" id="picPaths" /></td>
+	</tr>
+	<tr align="center">
+		<td colspan="2"><input type="submit" name="sbt" id="sbt" value="添加" /></td>
+	</tr>
+	</tr>
+</table>
+</form>
+</body>
+</html>
+<script src="js/jquery.js"></script>
+<script src="js/jquery.from.js"></script>
+<script src="js/commonAjax.js"></script>
+<script src="ckeditor_3.6.4/ckeditor/ckeditor.js" ></script>
+<script>
+	commonAjax("http://localhost:8080/docsys/api/type",null,"json","get",function (data){
+		console.log(data)
+		$("#typeId").html("");
+		$("#typeId").append($("<option value=\"\">--请选择--</option>"));
+		var typelist=data.data;
+		console.log(typelist)
+		for (var i = 0; i < typelist.length; i++) {
+			var template;
+			template="<option  value=\""+typelist[i].id+"\">"+typelist[i].name+"</option>";
+			$("#typeId").append($(template));
+		}
+		$("#typeId").val(data.typeid)
+	},function (error){
+		alert("输入错误！请重新输入")
+	})
+
+</script>
+<script>
+	$(function (){
+		$('#sbt').click(function(){
+			//需要手动更新CKEDITOR字段
+			for ( instance in CKEDITOR.instances )
+				CKEDITOR.instances[instance].updateElement();
+			return true;
+		});
+
+		var options={
+			dataType:"json",
+			success:function (data){
+				if (d.code=="403"){
+					location.href="login.html"
+				}
+				$("#responseText").text(data);
+				location.href="list.html";
+			}
+		};
+		$("#docForm").ajaxForm(options);
+	})
+</script>
+
+
+
+
+
+
+<!--<script>-->
+<!--	$(function (){-->
+<!--		$("#sbt").click(function (){-->
+<!--			var typeId=$("#typeId").val();-->
+<!--			var docName=$("#name").val();-->
+<!--			var describe=$("#describle").val();-->
+<!--			var auth=$("#auth").val();-->
+<!--			var pushDate=$("#pushdate").val();-->
+<!--          //通过ajax技术发送请求到后端接口-->
+<!--			$.ajax({-->
+<!--				url:"http://localhost:8080/docsys/doc",-->
+<!--				data:{"type":"add","typeId":typeId,"docName":docName,"describe":describe,"auth":auth,"pushDate":pushDate},-->
+<!--				dataType:"json",-->
+<!--				type:"get",-->
+<!--				//回调函数,接收后端响应结果，后端响应的结果放封装data中-->
+<!--				success:function (data){-->
+<!--					console.log(data);-->
+<!--					console.log("后端接收了数据")-->
+<!--					if (data.success){-->
+<!--						console.log("插入成功");-->
+<!--						alert("插入成功");-->
+<!--						// location.href="list.html";-->
+<!--					}else{-->
+<!--						console.log("插入失败");-->
+<!--						$("div").html(data.message);-->
+<!--					}-->
+<!--				},-->
+<!--				error:function (error){-->
+<!--					alert("后端出错了！");-->
+<!--				}-->
+
+<!--			})-->
+
+
+<!--		})-->
+<!--	})-->
+<!--</script>-->
+`

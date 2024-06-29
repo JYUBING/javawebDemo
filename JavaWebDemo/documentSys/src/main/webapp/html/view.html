@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+</head>
+
+<body>
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+  <tr>
+      <td align="right">
+		登录成功，欢迎您，admin	 <a href="login.html">退出</a>
+	  </td>
+  </tr>
+</table>
+
+<h2>查看文档</h2>
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+	<tr>
+		<td>文档编号:</td>
+		<td><input type="text" disabled="disabled" name="id" id="id" value="102" /></td>
+	</tr>
+    <tr>
+		<td>文档类型:</td>
+		<td>
+			<input type="text" name="typeId" id="typeId" />
+
+
+		</td>
+	</tr>
+	<tr>
+		<td>文档名称:</td>
+		<td><input type="text" name="name" id="name" value="Java从入门到放弃" /></td>
+	</tr>
+	<tr>
+		<td>文档摘要:</td>
+		<td>
+			<textarea rows="3" cols="21" id="describle" name="describle" >如何培养一个IT屌丝男,这里有答案</textarea>
+		</td>
+	</tr>
+	<tr>
+		<td>上传人:</td>
+		<td><input type="text" name="auth" id="auth" value="aa" /></td>
+	</tr>
+	<tr>
+		<td>上传时间(yyyy-MM-dd):</td>
+		<td><input type="text" name="pushdate" id="pushdate" value="2019-02-02" /></td>
+	</tr>
+	<tr>
+		<td>上传文件1:</td>
+		<td name="picPath" id="picPath"></td>
+	</tr>
+	<tr>
+		<td>上传文件2:</td>
+		<td id="picPaths" name="picPaths"></td>
+	</tr>
+	 
+  </tr>
+</table>
+</body>
+</html>
+<script src="js/jquery.js"></script>
+<script src="js/getQueryParam.js"></script>
+<script src="js/commonAjax.js"></script>
+
+<script>
+	var id=getQueryParam("id");
+	console.log(id);
+
+	$(function (){
+		$(function(){
+			commonAjax("http://localhost:8080/docsys/api/doc",{"type":"view","id":id},"json","get",function (d) {
+				if (d.code=="403"){
+					location.href="login.html"
+				}
+						console.log(d);
+						$("#name").val(d.data.name);
+						$("#id").val(d.data.id);
+						$("#typeId").val(d.data.typeName);
+						$("#auth").val(d.data.auth);
+						$("#pushdate").val(d.data.pushDate);
+						$("#describle").val(d.data.describe);
+						var imgPicPath="<img width=300px height=300px src ='http://localhost:8080/docsys/upload/"+d.data.picPath+"'>"
+						var imgPicPaths="<img width=300px height=300px src ='http://localhost:8080/docsys/upload/"+d.data.picPaths+"'>"
+						if (d.data.picPath!=null){
+							$("#picPath").html($(imgPicPath));
+						}
+						if (d.data.picPaths!=null) {
+							$("#picPaths").html($(imgPicPaths));
+						}
+					},function (e) {
+						console.log("后端出错了");
+					}
+			)
+		  })
+		})
+
+
+
+
+
+
+</script>

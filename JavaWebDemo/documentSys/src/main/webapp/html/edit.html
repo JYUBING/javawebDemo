@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+</head>
+
+<body>
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+  <tr>
+      <td align="right">
+		登录成功，欢迎您，admin	 <a href="login.html">退出</a>
+	  </td>
+  </tr>
+</table>
+
+<h2>修改文档</h2>
+<form action="http://localhost:8080/docsys/api/doc?type=updateload" method="post" id="docForm" enctype="multipart/form-data">
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+	<tr>
+		<td>文档编号:</td>
+		<td><input type="text"  disabled="disabled"  name="id" id="id" value="102" /></td>
+	</tr>
+    <tr>
+		<td>文档类型:</td>
+		<td>
+			<select name="typeId" id="typeId">
+				<option value="">--请选择--</option>
+
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>文档名称:</td>
+		<td><input type="text" name="docName" id="name" value="Java从入门到放弃" /></td>
+	</tr>
+	<tr>
+		<td>文档摘要:</td>
+		<td>
+			<textarea rows="3" cols="21" id="describe" name="describe" >如何培养一个IT屌丝男,这里有答案</textarea>
+		</td>
+	</tr>
+	<tr>
+		<td>上传人:</td>
+		<td><input type="text" name="auth" id="auth" value="aa" /></td>
+	</tr>
+	<tr>
+		<td>上传时间(yyyy-MM-dd):</td>
+		<td><input type="date" name="pushDate" id="pushdate" value="2019-02-02" /></td>
+	</tr>
+	<tr>
+		<td>替换文件1:</td>
+		<td> <input type="file" name="picPath" id="picPath"/></td>
+		<td name="oldpicPath" id="oldpicPath"></td>
+	</tr>
+	<tr>
+		<td>替换文件2:</td>
+		<td><input type="file" name="picPaths" id="picPaths" /></td>
+		<td id="oldpicPaths" name="oldpicPaths"></td>
+	</tr>
+	<tr align="center">
+		<td colspan="2"><input type="submit" name="sbt" id="sbt" value="修改" /></td>
+	</tr>
+  </tr>
+</table>
+</form>
+</body>
+</html>
+<script src="js/jquery.js"></script>
+<script src="js/commonAjax.js"></script>
+<script src="js/jquery.from.js"></script>
+<script src="js/getQueryParam.js"></script>
+<script>
+	var id=getQueryParam("id");
+	console.log(id);
+
+		$(function(){
+			loadDocData();
+			submitForm(id);
+		})
+
+	function submitForm(id){
+		var options={
+			url:"http://localhost:8080/docsys/api/doc?type=update&id="+id,
+			dataType:"json",
+			success:function (data){
+				$("#responseText").text(data);
+				location.href="list.html";
+			}
+		};
+		$("#docForm").ajaxForm(options);
+	}
+
+	//加载页面数据
+	function loadDocData(){
+		commonAjax("http://localhost:8080/docsys/api/doc",{"type":"viewUpdate","id":id},"json","get",function (d) {
+			if (d.code=="403"){
+				location.href="login.html"
+			}
+					console.log(d);
+					$("#name").val(d.data.doc.name);
+					$("#id").val(d.data.doc.id);
+					$("#typeId").val(d.data.doc.typeName);
+					$("#auth").val(d.data.doc.auth);
+					$("#pushdate").val(d.data.doc.pushDate);
+					$("#describe").val(d.data.doc.describe);
+			        var imgPicPath="<img width=300px height=300px src ='http://localhost:8080/docsys/upload/"+d.data.doc.picPath+"'>"
+					var imgPicPaths="<img width=300px height=300px src ='http://localhost:8080/docsys/upload/"+d.data.doc.picPaths+"'>"
+			if (d.data.doc.picPath!=null) {
+				$("#oldpicPath").html($(imgPicPath));
+			}
+			if (d.data.doc.picPath!=null) {
+				$("#oldpicPaths").html($(imgPicPaths));
+			}
+					loadTypeSelect(d)
+				},function (e) {
+					console.log("后端出错了");
+				}
+		)
+	}
+
+		//渲染分类下拉列表
+		function loadTypeSelect(d){
+			$("#typeId").html("");
+			$("#typeId").append($("<option value=\"\">--请选择--</option>"));
+			var typelist=d.data.typeList;
+			for (var i = 0; i < typelist.length; i++) {
+				var template;
+				template="<option  value=\""+typelist[i].id+"\">"+typelist[i].name+"</option>";
+				$("#typeId").append($(template));
+			}
+			$("#typeId").val(d.data.doc.typeId)
+		}
+
+</script>

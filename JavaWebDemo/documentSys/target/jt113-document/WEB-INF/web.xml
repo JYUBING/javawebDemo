@@ -1,0 +1,55 @@
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+  <display-name>Archetype Created Web Application</display-name>
+  <filter>
+    <filter-name>CharaterEncodingFilter</filter-name>
+    <filter-class>com.jiahua.filter.CharaterEncodingFilter</filter-class>
+  </filter>
+  <filter>
+    <filter-name>LoginFilter</filter-name>
+    <filter-class>com.jiahua.filter.LoginFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>CharaterEncodingFilter</filter-name>
+    <url-pattern>/api/*</url-pattern>
+  </filter-mapping>
+<filter-mapping>
+  <filter-name>LoginFilter</filter-name>
+  <url-pattern>/api/*</url-pattern>
+</filter-mapping>
+
+
+
+
+
+  <servlet>
+    <servlet-name>UserServlet</servlet-name>
+    <servlet-class>com.jiahua.servlect.UserServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>DocServlet</servlet-name>
+    <servlet-class>com.jiahua.servlect.DocServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>DocTypeServlet</servlet-name>
+    <servlet-class>com.jiahua.servlect.DocTypeServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UserServlet</servlet-name>
+    <url-pattern>/api/user</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DocServlet</servlet-name>
+    <url-pattern>/api/doc</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>DocTypeServlet</servlet-name>
+    <url-pattern>/api/type</url-pattern>
+  </servlet-mapping>
+
+</web-app>

@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+    <style type="text/css">
+        span,a{
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+  <tr>
+      <td align="right">
+		登录成功，欢迎您，<span id="username"></span>	 <a id="layout">退出</a>
+	  </td>
+  </tr>
+</table>
+<br/>
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+  <tr>
+      <td>
+		<a href="#">
+		<input type="button" name="button3" id="button3" value="新增文档" onclick="javascript:window.location.href='add.html'" />
+		</a>
+	   </td>
+  </tr>
+</table>
+<br/>
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+  <tr>
+    <td>
+	  文档类型:
+      <select name="typeId" id="typeId">
+		<option value="">--请选择--</option>
+
+	  </select>
+	  文档名称
+	<input type="text" name="docname" id="docname"  />
+	  
+      <input type="button" name="sbt" id="sbt" value="查询" />
+	</td>
+  </tr>
+</table>
+<br/>
+<table width="80%" border="1" cellspacing="0" cellpadding="5">
+    <thead>
+    <tr>
+        <td>文档编号</td>
+        <td>文档类型</td>
+        <td>文档名称</td>
+        <td>文档摘要</td>
+        <td>上传人</td>
+        <td>上传时间</td>
+        <td>操作</td>
+    </tr>
+    </thead>
+      <tbody id="first"></tbody>
+
+    <tfoot>
+    <tr>
+        <td colspan="9"> <span onclick="changepage('first')">首页</span>  <span onclick="changepage('prev')">上一页</span>   <span onclick="changepage('next')">下一页</span>  <span onclick="changepage('last')">尾页</span> 第 <span id="pageNo"></span> / <span></span> 页 共<span></span>条记录 跳
+            <input name="textfield4" type="text" id="gonum" size="4" maxlength="4" />
+            页
+            <input type="button" name="button5" id="button5" value="go" onclick="changepage('go')" /></td>
+    </tr>
+    </tfoot>
+
+
+</table>
+<p>&nbsp;</p>
+</body>
+</html>
+<script src="js/jquery.js"></script>
+<script src="js/commonAjax.js"></script>
+<script>
+    $(function (){
+
+        var username = localStorage.getItem("user");
+        $("#username").html(username);
+
+
+        load(null,null,1);
+
+        $("#sbt").click(function (){
+            search(1);
+        });
+
+        $("#layout").click(function (){
+            layout();
+        })
+    })
+
+    function layout(){
+        commonAjax("http://localhost:8080/docsys/api/user?type=layout",null,"json","get",function (d){
+            if (d.success){
+                location.href="login.html"
+            }
+        },function (error) {
+            alert("后端出现了问题")
+        })
+    }
+
+
+
+    function search(pageNo){
+        var docname=$("#docname").val();
+        var typeId=$("#typeId").val();
+        load(docname,typeId,pageNo);
+    }
+
+    function load(docName,typeId,pageNo){
+        //通过ajax技术发送请求到后端接口
+        $.ajax({
+            url:"http://localhost:8080/docsys/api/doc",
+            data:{"type":"listpage","docname":docName,"typeId":typeId,"pageNo":pageNo},
+            dataType:"json",
+            type:"get",
+            //回调函数,接收后端响应结果，后端响应的结果放封装data中
+            success:function (d){
+                if (d.code=="403"){
+                    location.href="login.html"
+                }
+                console.log("后端接收了数据")
+                console.log(d);
+                console.log(d.data.page.data.typeId);
+                loadDataList(d.data.page.data);
+                loadPageCount(d.data.page);
+                loadTypeSelect(d.data)
+            },
+            error:function (error){
+                alert("后端出错了！");
+            }
+        })
+    }
+
+    //前一页，首页，尾页，后一页
+    function changepage(manager){
+        switch (manager){
+            case 'first':
+                search(1);
+            break;
+            case 'prev':
+                var pageNo=parseInt($("#pageNo").html());
+                if (pageNo>1){
+                    pageNo--;
+                    search(pageNo);
+                }
+                break;
+            case 'next':
+                var totalPage=parseInt($("#pageNo").next().html());
+                var pageNo=parseInt($("#pageNo").html());
+                if (pageNo<totalPage){
+                    pageNo++;
+                    search(pageNo)
+                }
+                break;
+            case 'last':
+                var totalPage=parseInt($("#pageNo").next().html());
+                search(totalPage);
+                break;
+            case 'go':
+               var pageNo= $("#gonum").val();
+                var totalPage=parseInt($("#pageNo").next().html());
+               if (pageNo==null||isNaN(pageNo)){alert("输入格式有误") ;return};
+               if (parseInt(pageNo)>totalPage||parseInt(pageNo)<1){alert("输入数据有误");return};
+                search(parseInt(pageNo))
+                break;
+        }
+    }
+
+
+    //渲染分类下拉列表
+    function loadTypeSelect(data){
+        console.log(data)
+        $("#typeId").html("");
+        $("#typeId").append($("<option value=\"\">--请选择--</option>"));
+        var typelist=data.typelist;
+        console.log(typelist)
+        for (var i = 0; i < typelist.length; i++) {
+            var template;
+            template="<option  value=\""+typelist[i].id+"\">"+typelist[i].name+"</option>";
+            $("#typeId").append($(template));
+        }
+        $("#typeId").val(data.typeid)
+    }
+
+
+    //渲染分页数据
+    function loadPageCount(page){
+        $("#pageNo").html(page.pageNo);
+        $("#pageNo").next().html(page.totalPage);
+        $("#pageNo").next().next().html(page.totalCount);
+    }
+
+    //将数据存入列表中
+    function loadDataList(array){
+        $("#first").html("");
+        for (var i = 0; i < array.length; i++) {
+            var doc=array[i];
+            console.log(doc)
+            var $tr=$(" <tr>\n" +
+                "    <td>"+doc.id+"</td>\n" +
+                "\t<td>"+doc.typeId+"</td>\n" +
+                "    <td>"+doc.name+"</td>\n" +
+                "    <td>"+doc.describe+"</td>\n" +
+                "    <td>"+doc.auth+"</td>\n" +
+                "    <td>"+doc.pushDate+"</td>\n" +
+                "\t<td>\n" +
+                "\t\t<a href=\"edit.html?id="+doc.id+"\">修改</a> \n" +
+                "\t\t<a id='del' value='"+doc.id+"' onclick='del(this)'>删除</a>\n" +
+                "\t\t<a href=\"view.html?id="+doc.id+"\">查看</a>\n" +
+                "\t</td>\n" +
+                "</tr>");
+            $("#first").append($tr);
+
+        }
+    }
+
+    function del(e){
+        if (confirm("请问真的要删除吗")){
+            var id= $(e).attr("value");
+            console.log(id)
+            commonAjax("http://localhost:8080/docsys/api/doc",{"type":"del","id":id},"json","get",function (d){
+                if (d.success){
+                    alert("删除成功");
+                    var pageNo= parseInt($("#pageNo").html());
+                    var totalCount=parseInt($("#pageNo").next().next().html());
+                    var totalPage=parseInt($("#pageNo").next().html());
+                    if (totalCount%3==1&&pageNo>1&&pageNo==totalPage){
+                        search(pageNo-1);
+                    }else{
+                        search(pageNo);
+                    }
+                }else{
+                    alert("删除失败")
+                }
+            },function (e){
+                alert("后端出错了")
+            })
+        }
+    }
+
+</script>
+
